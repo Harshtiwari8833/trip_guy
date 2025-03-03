@@ -53,7 +53,7 @@ fun Home() {
             .background(background)
             .statusBarsPadding()
     ) {
-        Toolbar()
+        Toolbar(text = "Cancel")
         MainContent()
         Spacer(modifier = Modifier.weight(1f,true))
         Button("Continue")
@@ -61,7 +61,7 @@ fun Home() {
 }
 
 @Composable
-fun Toolbar(modifier: Modifier = Modifier) {
+fun Toolbar(modifier: Modifier = Modifier, text: String) {
     Row(
         modifier
             .fillMaxWidth()
@@ -86,7 +86,7 @@ fun Toolbar(modifier: Modifier = Modifier) {
             )
         }
         Text(
-            text = "Cancel",
+            text = text,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
