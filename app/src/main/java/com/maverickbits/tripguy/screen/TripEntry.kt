@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.Toolbar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,16 +45,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.maverickbits.tripguy.R
 import com.maverickbits.tripguy.ui.theme.Purple40
 import com.maverickbits.tripguy.ui.theme.background
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
+import com.maverickbits.tripguy.veiwModel.TripViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TripEntry() {
+fun TripEntry(viewModel: TripViewModel) {
     val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
 
@@ -67,7 +74,7 @@ fun TripEntry() {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(background) // ✅ Background is properly applied
+                .background(background) //  Background is properly applied
                 .statusBarsPadding()
                 .padding(0.dp)
         ) {
@@ -75,11 +82,15 @@ fun TripEntry() {
             Toolbar()
             body()
 
-            // ✅ Keep Bottom Sheet inside Box so it appears over content
+            //  Keep Bottom Sheet inside Box so it appears over content
             if (showSheet) {
                 BottomSheetContent(
                     sheetState = sheetState,
-                    onDismiss = { showSheet = false }
+                    onDismiss = { showSheet = false },
+                    onSave = { tripName, tripMembers, currentTime ->
+                        viewModel.addTrip(tripName, tripMembers, currentTime)
+                        showSheet = false
+                    }
                 )
             }
         }
@@ -138,7 +149,7 @@ fun BackgroundImage() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetContent(sheetState: SheetState, onDismiss: () -> Unit) {
+fun BottomSheetContent(sheetState: SheetState, onDismiss: () -> Unit , onSave: (String, String, String) -> Unit) {
 
     LaunchedEffect(Unit) {
         sheetState.expand() // 🔥 Expands the bottom sheet to full-screen when opened
@@ -150,14 +161,14 @@ fun BottomSheetContent(sheetState: SheetState, onDismiss: () -> Unit) {
         modifier = Modifier.fillMaxSize()
 
     ) {
-        BottomSheetLayout()
+        BottomSheetLayout(onSave = onSave)
 
     }
 }
 
 
 @Composable
-fun BottomSheetLayout(){
+fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
     var textTitleState by remember {
         mutableStateOf("")
     }
@@ -185,7 +196,13 @@ fun BottomSheetLayout(){
             Text(
                 text = "Add",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                modifier =  Modifier.clickable {
+                    val currentTime = getCurrentDateTime()
+                    if (textTitleState.isNotEmpty() && textTitleState1.isNotEmpty() && currentTime.isNotEmpty()){
+                        onSave(textTitleState, textTitleState1,currentTime )
+                }
+                }
             )
         }
         Text(
@@ -248,7 +265,7 @@ fun BottomSheetLayout(){
                     decorationBox = {
                         Box {
                             if (textTitleState1.isEmpty())
-                                Text("Enter Trip Name", fontSize = 16.sp, color = Color.Gray)
+                                Text("Enter Members", fontSize = 16.sp, color = Color.Gray)
                             it()
                         }
                     })
@@ -282,4 +299,7 @@ fun ListItems(){
     }
 }
 
-
+fun getCurrentDateTime(): String {
+    val sdf = SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault()) // Example: 04-03-2025 10:30 AM
+    return sdf.format(Date())
+}
