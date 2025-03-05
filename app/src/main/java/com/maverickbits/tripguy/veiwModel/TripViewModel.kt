@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.maverickbits.tripguy.room.dao.TripDao
 import com.maverickbits.tripguy.room.entity.TripEntity
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TripViewModel(private val tripDao: TripDao) : ViewModel() {
@@ -19,6 +21,9 @@ class TripViewModel(private val tripDao: TripDao) : ViewModel() {
             }
         }
     }
+
+    val allTrips: StateFlow<List<TripEntity>> = tripDao.getAllTrips()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 }
 
 class TripViewModelFactory(private val tripDao: TripDao) : ViewModelProvider.Factory {

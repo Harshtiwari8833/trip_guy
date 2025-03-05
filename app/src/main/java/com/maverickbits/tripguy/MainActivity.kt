@@ -17,6 +17,7 @@ import com.maverickbits.tripguy.room.database.TripDatabase
 
 import com.maverickbits.tripguy.screen.LoginScreen
 import com.maverickbits.tripguy.screen.TripEntry
+import com.maverickbits.tripguy.screen.TripListScreen
 import com.maverickbits.tripguy.ui.theme.TripGuyTheme
 import com.maverickbits.tripguy.veiwModel.TripViewModel
 import com.maverickbits.tripguy.veiwModel.TripViewModelFactory

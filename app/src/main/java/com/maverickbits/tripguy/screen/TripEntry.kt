@@ -1,7 +1,13 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.maverickbits.tripguy.screen
 
 import android.annotation.SuppressLint
 import android.widget.Toolbar
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -30,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,12 +58,20 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.maverickbits.tripguy.R
+import com.maverickbits.tripguy.room.entity.TripEntity
 import com.maverickbits.tripguy.ui.theme.Purple40
 import com.maverickbits.tripguy.ui.theme.background
 import com.maverickbits.tripguy.veiwModel.TripViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material.DismissState
+import androidx.compose.material.DismissValue
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.rememberDismissState
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -64,13 +81,11 @@ fun TripEntry(viewModel: TripViewModel) {
     val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showSheet = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Open Bottom Sheet")
-            }
+    Scaffold(topBar = { Toolbar() }, floatingActionButton = {
+        FloatingActionButton(onClick = { showSheet = true }) {
+            Icon(Icons.Default.Add, contentDescription = "Open Bottom Sheet")
         }
-    ) {
+    }) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -78,36 +93,46 @@ fun TripEntry(viewModel: TripViewModel) {
                 .statusBarsPadding()
                 .padding(0.dp)
         ) {
-            BackgroundImage()
-            Toolbar()
-            body()
 
-            //  Keep Bottom Sheet inside Box so it appears over content
+            val trips by viewModel.allTrips.collectAsState()
+            if (!trips.isEmpty()) {
+                TripListScreen(trips)
+            } else {
+                BackgroundImage()
+                body()
+            }
+
             if (showSheet) {
-                BottomSheetContent(
-                    sheetState = sheetState,
+                BottomSheetContent(sheetState = sheetState,
                     onDismiss = { showSheet = false },
                     onSave = { tripName, tripMembers, currentTime ->
                         viewModel.addTrip(tripName, tripMembers, currentTime)
                         showSheet = false
-                    }
-                )
+                    })
             }
         }
     }
 }
 
+
+@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Toolbar(){
-    Text("Trip Guy", fontSize = 24.sp, fontWeight = FontWeight.W700,
-        modifier = Modifier.padding(10.dp))
+fun Toolbar() {
+    androidx.compose.material3.TopAppBar(
+        title = {
+            Text(
+                text = "Trip Guy", fontSize = 20.sp, fontWeight = FontWeight.Bold
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable
 fun body() {
     Column(
-        Modifier
-            .fillMaxSize(),
+        Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -125,9 +150,7 @@ fun body() {
 @Composable
 fun BackgroundImage() {
     Column(
-        Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
+        Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween
     ) {
         Image(
             painter = painterResource(R.drawable.haze),
@@ -145,20 +168,18 @@ fun BackgroundImage() {
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetContent(sheetState: SheetState, onDismiss: () -> Unit , onSave: (String, String, String) -> Unit) {
+fun BottomSheetContent(
+    sheetState: SheetState, onDismiss: () -> Unit, onSave: (String, String, String) -> Unit
+) {
 
     LaunchedEffect(Unit) {
-        sheetState.expand() // 🔥 Expands the bottom sheet to full-screen when opened
+        sheetState.expand() //Expands the bottom sheet to full-screen when opened
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        modifier = Modifier.fillMaxSize()
+        onDismissRequest = onDismiss, sheetState = sheetState, modifier = Modifier.fillMaxSize()
 
     ) {
         BottomSheetLayout(onSave = onSave)
@@ -166,9 +187,8 @@ fun BottomSheetContent(sheetState: SheetState, onDismiss: () -> Unit , onSave: (
     }
 }
 
-
 @Composable
-fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
+fun BottomSheetLayout(onSave: (String, String, String) -> Unit) {
     var textTitleState by remember {
         mutableStateOf("")
     }
@@ -181,35 +201,34 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(15.dp), horizontalArrangement = Arrangement.SpaceBetween
-        ){
+                .padding(15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(
                 text = "Cancel",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
             )
-            Text(
-                text = "Add",
+            Text(text = "Add",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                modifier =  Modifier.clickable {
+                modifier = Modifier.clickable {
                     val currentTime = getCurrentDateTime()
-                    if (textTitleState.isNotEmpty() && textTitleState1.isNotEmpty() && currentTime.isNotEmpty()){
-                        onSave(textTitleState, textTitleState1,currentTime )
-                }
-                }
-            )
+                    if (textTitleState.isNotEmpty() && textTitleState1.isNotEmpty() && currentTime.isNotEmpty()) {
+                        onSave(textTitleState, textTitleState1, currentTime)
+                    }
+                })
         }
         Text(
             text = "Add Trip",
             fontSize = 23.sp,
             fontWeight = FontWeight.W900,
-            textAlign = TextAlign.Center ,// Ensures text itself is centered
+            textAlign = TextAlign.Center,// Ensures text itself is centered
             modifier = Modifier.padding(vertical = 12.dp)
         )
         Row(
@@ -217,7 +236,9 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .padding(horizontal = 15.dp)
-                .background(Color.White, shape = RoundedCornerShape(8.dp)) // TextField background color
+                .background(
+                    Color.White, shape = RoundedCornerShape(8.dp)
+                ) // TextField background color
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 12.dp),
@@ -227,21 +248,25 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
                 onValueChange = { textTitleState = it },
                 Modifier.wrapContentSize(),
                 textStyle = TextStyle(
-                    Color.Black, 16.sp,
-                    FontWeight.Bold
+                    Color.Black, 16.sp, FontWeight.Bold
                 ),
                 decorationBox = {
                     Box {
-                        if (textTitleState.isEmpty())
-                            Text("Enter Trip Name", fontSize = 16.sp, color = Color.Gray)
+                        if (textTitleState.isEmpty()) Text(
+                            "Enter Trip Name",
+                            fontSize = 16.sp,
+                            color = Color.Gray
+                        )
                         it()
                     }
                 })
         }
 
-        Row( Modifier
-            .fillMaxWidth()
-            .wrapContentHeight().padding(vertical = 5.dp)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(vertical = 5.dp)
         ) {
 
             Row(
@@ -249,7 +274,9 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .padding(horizontal = 15.dp)
-                    .background(Color.White, shape = RoundedCornerShape(8.dp)) // TextField background color
+                    .background(
+                        Color.White, shape = RoundedCornerShape(8.dp)
+                    ) // TextField background color
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp),
@@ -259,13 +286,15 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
                     onValueChange = { textTitleState1 = it },
                     Modifier.wrapContentSize(),
                     textStyle = TextStyle(
-                        Color.Black, 16.sp,
-                        FontWeight.Bold
+                        Color.Black, 16.sp, FontWeight.Bold
                     ),
                     decorationBox = {
                         Box {
-                            if (textTitleState1.isEmpty())
-                                Text("Enter Members", fontSize = 16.sp, color = Color.Gray)
+                            if (textTitleState1.isEmpty()) Text(
+                                "Enter Members",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
                             it()
                         }
                     })
@@ -277,9 +306,21 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit){
     }
 }
 
+@Composable
+fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 56.dp, bottom = 20.dp)
+    ) {
+        items(trips) { trip: TripEntity ->
+            ListItems(trip)
+        }
+    }
+}
 
 @Composable
-fun ListItems(){
+fun ListItems(trips: TripEntity) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -289,17 +330,88 @@ fun ListItems(){
             .padding(vertical = 13.dp, horizontal = 10.dp),
         verticalArrangement = Arrangement.Center,
 
-    ){
-        Text("Gujarat",  fontSize = 20.sp,
+        ) {
+        Text(
+            trips.tripName,
+            fontSize = 20.sp,
             fontWeight = FontWeight.W500,
-            modifier = Modifier.padding(4.dp))
-        Text("3 Members | Yesterday at 5:55 PM",  fontSize = 14.sp,
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            "${trips.tripMembers} Members | ${trips.currentTime}",
+            fontSize = 14.sp,
             fontWeight = FontWeight.W300,
-            modifier = Modifier.padding(4.dp))
+            modifier = Modifier.padding(4.dp)
+        )
     }
 }
 
 fun getCurrentDateTime(): String {
-    val sdf = SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault()) // Example: 04-03-2025 10:30 AM
+    val sdf = SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault())
     return sdf.format(Date())
+}
+
+
+@Composable
+fun <T> SwipeToDeleteContainer(
+    item : T,
+    onIteamDelete : (T) -> Unit,
+    animationDuration : Int = 500,
+    content: @Composable (T) -> Unit
+){
+    var isRemoved by remember {
+        mutableStateOf(false)
+    }
+
+
+   val state  = rememberDismissState(
+       confirmStateChange = { value ->
+           if(value == DismissValue.DismissedToStart){
+               onIteamDelete(item)
+               isRemoved = true
+               true
+           }else{
+               false
+           }
+
+       }
+   )
+    AnimatedVisibility(visible = !isRemoved,
+           exit = shrinkVertically(
+               animationSpec = tween(durationMillis = animationDuration),
+               shrinkTowards = Alignment.Top
+           ) + fadeOut()
+        ) {
+        SwipeToDismiss(state = state, background = {
+            DeleteBackground(state)
+        }, dismissContent = {content(item)},
+            directions = setOf(DismissDirection.EndToStart)
+        )
+    }
+
+
+
+}
+
+
+@Composable
+fun DeleteBackground(
+    swipeDismissState: DismissState
+) {
+    val color = if (swipeDismissState.dismissDirection == DismissDirection.EndToStart) {
+        Color.Red
+    } else {
+        Color.Transparent
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(16.dp)
+    ) {
+        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
+
+    }
+
+
 }
