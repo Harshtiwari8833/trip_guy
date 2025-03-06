@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,8 +71,17 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.delay
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -80,6 +90,8 @@ import androidx.compose.material.rememberDismissState
 fun TripEntry(viewModel: TripViewModel) {
     val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
+
+
 
     Scaffold(topBar = { Toolbar() }, floatingActionButton = {
         FloatingActionButton(onClick = { showSheet = true }) {
@@ -97,7 +109,7 @@ fun TripEntry(viewModel: TripViewModel) {
             val trips by viewModel.allTrips.collectAsState()
 
             if (trips == null) {
-
+                LottiLoadingScreen()
             } else if (trips!!.isNotEmpty()) {
                 TripListScreen(trips!!, viewModel = viewModel)
             } else {
@@ -121,14 +133,19 @@ fun TripEntry(viewModel: TripViewModel) {
 @Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Toolbar() {
-    androidx.compose.material3.TopAppBar(
+fun Toolbar(
+
+) {
+    TopAppBar(
         title = {
             Text(
                 text = "Trip Guy", fontSize = 20.sp, fontWeight = FontWeight.Bold
             )
         },
         modifier = Modifier.fillMaxWidth(),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = background // Change this to any color you want
+        )
     )
 }
 
@@ -314,11 +331,16 @@ fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewMo
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 56.dp, bottom = 20.dp)
+            .padding(top = 60.dp, bottom = 20.dp)
     ) {
-        items(trips,
-            key= {trip -> trip.id}) {trip: TripEntity ->
-            SwipeToDeleteContainer(item = trip, onIteamDelete = {viewModel.deleteTripById(it.id)})
+        items(trips, key= {trip -> trip.id})
+        {trip: TripEntity ->
+            SwipeToDeleteContainer(
+                item = trip,
+                onItemDelete = {
+                  viewModel.deleteTripById(it.id)
+                }
+            )
             { trip: TripEntity ->
                 ListItems(trip)
             }
@@ -362,27 +384,52 @@ fun getCurrentDateTime(): String {
 @Composable
 fun <T> SwipeToDeleteContainer(
     item : T,
-    onIteamDelete : (T) -> Unit,
+    onItemDelete: (T) -> Unit,
     animationDuration : Int = 500,
     content: @Composable (T) -> Unit
+
 ){
     var isRemoved by remember {
         mutableStateOf(false)
     }
+    var showDialog by remember { mutableStateOf(false) }
 
 
    val state  = rememberDismissState(
        confirmStateChange = { value ->
            if(value == DismissValue.DismissedToStart){
-               onIteamDelete(item)
-               isRemoved = true
-               true
+
+               showDialog = true // Show dialog instead of deleting directly
+               false
            }else{
                false
            }
 
        }
    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Want to Delete this trip?") },
+            text = { Text("This Deleted Trip Can't be recovered, Are you sure?") },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("No")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    isRemoved = true
+                   onItemDelete(item)// Perform deletion here
+                }) {
+                    Text("Yes")
+                }
+            }
+        )
+    }
+
     AnimatedVisibility(visible = !isRemoved,
            exit = shrinkVertically(
                animationSpec = tween(durationMillis = animationDuration),
@@ -413,8 +460,8 @@ fun DeleteBackground(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 4.dp)
-        .background(color, shape = RoundedCornerShape(8.dp))
-        .padding(vertical = 13.dp, horizontal = 10.dp),
+            .background(color, shape = RoundedCornerShape(8.dp))
+            .padding(vertical = 13.dp, horizontal = 10.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
         Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
@@ -443,3 +490,21 @@ fun DeleteBackgroundPreview() {
 
     }
 }
+
+
+@Composable
+fun LottiLoadingScreen(){
+    val composition by rememberLottieComposition( LottieCompositionSpec.RawRes(R.raw.loading))
+
+    val progress by animateLottieCompositionAsState(composition = composition, iterations = LottieConstants.IterateForever)
+
+    Column(modifier= Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        LottieAnimation(composition = composition,
+             progress = { progress },)
+
+    }
+}
+
