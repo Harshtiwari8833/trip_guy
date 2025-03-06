@@ -64,5 +64,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
     implementation ("com.airbnb.android:lottie-compose:6.0.0")
+    implementation ("com.google.android.gms:play-services-auth:20.6.0")
 
 }

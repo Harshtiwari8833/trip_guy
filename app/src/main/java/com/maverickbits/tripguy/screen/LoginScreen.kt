@@ -27,13 +27,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.startActivityForResult
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
 import com.maverickbits.tripguy.R
 import com.maverickbits.tripguy.ui.theme.background
 import com.maverickbits.tripguy.ui.theme.loginbg
 
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
+
 @Composable
-fun LoginScreen() {
+fun LoginScreen(onclick: ()-> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -44,7 +48,8 @@ fun LoginScreen() {
         Spacer(modifier = Modifier.height(20.dp))
         Body()
         Spacer(modifier = Modifier.weight(1f,true))
-        Button("Get Started")
+        Button("Login With Google" ,
+            {onclick()})
     }
 
 }
@@ -70,7 +75,7 @@ fun Body() {
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Set up your 1st Expense Log",
+                text = "Welcome Back! Sign in with Google",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.W900,
                 textAlign = TextAlign.Center,
@@ -103,7 +108,7 @@ fun Body() {
             horizontalArrangement = Arrangement.Center
         ){
             Text(
-                text = "Just answer a few simple questions to set up a budget and get started",
+                text = "Sign in securely with your Google account—quick, easy, and password-free!",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.W500,
                 textAlign = TextAlign.Center,
@@ -115,3 +120,6 @@ fun Body() {
 
 
 }
+
+
+

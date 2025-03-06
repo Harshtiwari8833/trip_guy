@@ -56,7 +56,7 @@ fun Home() {
         Toolbar(text = "Cancel")
         MainContent()
         Spacer(modifier = Modifier.weight(1f,true))
-        Button("Continue")
+        Button("Continue", {})
     }
 }
 
@@ -172,9 +172,9 @@ fun MainContent() {
 }
 
 @Composable
-fun Button( text : String) {
+fun Button( text : String, onClick: () -> Unit) {
     androidx.compose.material3.Button(
-        onClick = { },
+        onClick = { onClick() },
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 65.dp)
             .fillMaxWidth()

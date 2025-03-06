@@ -47,7 +47,7 @@ fun SetUpComplete() {
         GreatJob()
         LoginDetailsCard()
         Spacer(modifier = Modifier.weight(1f,true))
-        Button("Finish")
+        Button("Finish" ,{})
     }
 
 }
