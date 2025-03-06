@@ -56,6 +56,11 @@ class MainActivity : ComponentActivity() {
             TripGuyTheme {
                 val isLoggedIn = getSharedPreferences("userData", MODE_PRIVATE)
                     .getBoolean("isLoggedIn", false)
+                val loginData = getSharedPreferences("userData", MODE_PRIVATE)
+                    .getString("userName","")
+
+
+
                 var navController = rememberNavController()
                 NavHost(
                     navController = navController,
