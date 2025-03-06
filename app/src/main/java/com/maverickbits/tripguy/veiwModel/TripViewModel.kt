@@ -22,8 +22,15 @@ class TripViewModel(private val tripDao: TripDao) : ViewModel() {
         }
     }
 
-    val allTrips: StateFlow<List<TripEntity>> = tripDao.getAllTrips()
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val allTrips: StateFlow<List<TripEntity>?> = tripDao.getAllTrips()
+        .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+
+    fun deleteTripById(tripId: Int) {
+        viewModelScope.launch {
+            tripDao.deleteTripById(tripId)
+        }
+    }
 }
 
 class TripViewModelFactory(private val tripDao: TripDao) : ViewModelProvider.Factory {

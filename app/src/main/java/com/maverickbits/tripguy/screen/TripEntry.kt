@@ -95,8 +95,11 @@ fun TripEntry(viewModel: TripViewModel) {
         ) {
 
             val trips by viewModel.allTrips.collectAsState()
-            if (!trips.isEmpty()) {
-                TripListScreen(trips)
+
+            if (trips == null) {
+
+            } else if (trips!!.isNotEmpty()) {
+                TripListScreen(trips!!, viewModel = viewModel)
             } else {
                 BackgroundImage()
                 body()
@@ -307,14 +310,18 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit) {
 }
 
 @Composable
-fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier) {
+fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewModel: TripViewModel) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(top = 56.dp, bottom = 20.dp)
     ) {
-        items(trips) { trip: TripEntity ->
-            ListItems(trip)
+        items(trips,
+            key= {trip -> trip.id}) {trip: TripEntity ->
+            SwipeToDeleteContainer(item = trip, onIteamDelete = {viewModel.deleteTripById(it.id)})
+            { trip: TripEntity ->
+                ListItems(trip)
+            }
         }
     }
 }
@@ -393,7 +400,6 @@ fun <T> SwipeToDeleteContainer(
 
 }
 
-
 @Composable
 fun DeleteBackground(
     swipeDismissState: DismissState
@@ -406,12 +412,34 @@ fun DeleteBackground(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color)
-            .padding(16.dp)
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+        .background(color, shape = RoundedCornerShape(8.dp))
+        .padding(vertical = 13.dp, horizontal = 10.dp),
+        contentAlignment = Alignment.CenterEnd
     ) {
         Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
 
     }
 
 
+}
+@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
+@Composable
+fun DeleteBackgroundPreview() {
+    val dismissState = rememberDismissState(
+        initialValue = DismissValue.Default,
+        confirmStateChange = { true }
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Red)
+            .padding(16.dp),
+        contentAlignment = Alignment.CenterEnd
+
+    ) {
+        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
+
+    }
 }
