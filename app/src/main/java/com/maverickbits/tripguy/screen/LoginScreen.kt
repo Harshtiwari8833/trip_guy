@@ -76,10 +76,10 @@ fun Body() {
         ) {
             Text(
                 text = "Welcome Back! Sign in with Google",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.W900,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.W800,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(60.dp)
+                modifier =  Modifier.padding(horizontal = 60.dp, vertical =  60.dp)
             )
         }
         Row(

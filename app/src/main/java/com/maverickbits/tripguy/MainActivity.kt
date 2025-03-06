@@ -16,12 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.maverickbits.tripguy.room.database.TripDatabase
+import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.screen.FillDetails
 
 import com.maverickbits.tripguy.screen.LoginScreen
 import com.maverickbits.tripguy.screen.TripEntry
@@ -49,7 +54,24 @@ class MainActivity : ComponentActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         setContent {
             TripGuyTheme {
-                LoginScreen({signIn()})
+                val isLoggedIn = getSharedPreferences("userData", MODE_PRIVATE)
+                    .getBoolean("isLoggedIn", false)
+                var navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = if (isLoggedIn) "fill_details" else "google_login"
+                ) {
+                    composable(Routes.LoginScreen) {
+                        LoginScreen { signIn() }
+                    }
+                    composable(Routes.FillDetailsScreen) {
+                        FillDetails(navController)
+                    }
+                    composable(Routes.TripEntryScreen) {
+                        TripEntry(viewModel)
+                    }
+
+                }
             }
         }
 
@@ -73,6 +95,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private fun handleSignInResult(account: GoogleSignInAccount?) {
         if (account != null) {
             val email = account.email
@@ -84,9 +107,10 @@ class MainActivity : ComponentActivity() {
             sharedPreferences.putString("userImg", account.photoUrl.toString())
             sharedPreferences.putBoolean("isLoggedIn", true)
             sharedPreferences.apply()
+            sharedPreferences.putBoolean("isLoggedIn", true)
             Toast.makeText(this, "Signed in as: $email", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
             finish()
+            startActivity(Intent(this, MainActivity::class.java))
         } else {
             Toast.makeText(this, "Sign-in failed. Please try again.", Toast.LENGTH_SHORT).show()
         }

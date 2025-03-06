@@ -41,12 +41,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.maverickbits.tripguy.R
+import com.maverickbits.tripguy.routes.Routes
 import com.maverickbits.tripguy.ui.theme.background
 
-@Preview(showSystemUi = true)
+
 @Composable
-fun Home() {
+fun FillDetails(navController: NavController) {
     Column(
         Modifier
             .fillMaxSize()
@@ -56,7 +58,7 @@ fun Home() {
         Toolbar(text = "Cancel")
         MainContent()
         Spacer(modifier = Modifier.weight(1f,true))
-        Button("Continue", {})
+        Button("Continue", {navController.navigate(Routes.TripEntryScreen)})
     }
 }
 
