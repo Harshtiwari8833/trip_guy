@@ -56,21 +56,20 @@ class MainActivity : ComponentActivity() {
             TripGuyTheme {
                 val isLoggedIn = getSharedPreferences("userData", MODE_PRIVATE)
                     .getBoolean("isLoggedIn", false)
-                val loginData = getSharedPreferences("userData", MODE_PRIVATE)
+                val loginName = getSharedPreferences("userData", MODE_PRIVATE)
                     .getString("userName","")
-
-
-
+                val isFillDetail = getSharedPreferences("fillDetail", MODE_PRIVATE)
+                    .getBoolean("isFillDetails",false)
                 var navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = if (isLoggedIn) "fill_details" else "google_login"
+                    startDestination = if (isLoggedIn && !isFillDetail) Routes.FillDetailsScreen else if (isFillDetail && isLoggedIn) Routes.TripEntryScreen else Routes.LoginScreen
                 ) {
                     composable(Routes.LoginScreen) {
                         LoginScreen { signIn() }
                     }
                     composable(Routes.FillDetailsScreen) {
-                        FillDetails(navController)
+                        FillDetails(navController, loginName )
                     }
                     composable(Routes.TripEntryScreen) {
                         TripEntry(viewModel)
