@@ -57,7 +57,7 @@ fun EntryScreen() {
                         .weight(1f)
                         .wrapContentHeight()
                         .padding(8.dp)
-                        .background(Color.White,shape = RoundedCornerShape(8.dp))
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
 
 
                 )
@@ -96,7 +96,7 @@ fun EntryScreen() {
                         .wrapContentHeight()
                         .weight(1f)
                         .padding(8.dp)
-                        .background(Color.White,shape = RoundedCornerShape(8.dp))
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
                 )
                 {
                     Row {
