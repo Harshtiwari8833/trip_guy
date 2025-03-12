@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.maverickbits.tripguy.room.database.TripDatabase
 import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.screen.AmoutEntry
+import com.maverickbits.tripguy.screen.EntryScreen
 import com.maverickbits.tripguy.screen.FillDetails
 
 import com.maverickbits.tripguy.screen.LoginScreen
@@ -34,6 +36,7 @@ import com.maverickbits.tripguy.screen.TripListScreen
 import com.maverickbits.tripguy.ui.theme.TripGuyTheme
 import com.maverickbits.tripguy.veiwModel.TripViewModel
 import com.maverickbits.tripguy.veiwModel.TripViewModelFactory
+
 
 class MainActivity : ComponentActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -72,7 +75,13 @@ class MainActivity : ComponentActivity() {
                         FillDetails(navController, loginName )
                     }
                     composable(Routes.TripEntryScreen) {
-                        TripEntry(viewModel)
+                        TripEntry(viewModel, navController)
+                    }
+                    composable(Routes.AmountEntryScreen) {
+                        AmoutEntry()
+                    }
+                    composable(Routes.EntryScreen) {
+                        EntryScreen(navController = navController)
                     }
 
                 }

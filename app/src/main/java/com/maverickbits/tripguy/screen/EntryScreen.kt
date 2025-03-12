@@ -24,17 +24,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.maverickbits.tripguy.routes.Routes
 import com.maverickbits.tripguy.ui.theme.background
 import java.lang.reflect.Modifier
 
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EntryScreen() {
+fun EntryScreen(navController: NavController) {
     Scaffold(topBar = { Toolbar() }, floatingActionButton = {
-        FloatingActionButton(onClick = { }) {
-            Icon(Icons.Default.Add, contentDescription = "Open Bottom Sheet")
+        FloatingActionButton(onClick = { navController.navigate(Routes
+            .AmountEntryScreen) }) {
+            Icon(Icons.Default.Add, contentDescription = Routes.AmountEntryScreen)
         }
     })
     { paddingValues ->

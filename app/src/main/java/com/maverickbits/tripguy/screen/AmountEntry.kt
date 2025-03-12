@@ -67,30 +67,28 @@ fun AmoutEntry(){
     var noteText by remember {
         mutableStateOf("")
     }
+
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     var selectedDate by remember { mutableStateOf(dateFormat.format(Date())) } // Default: Today
 
-    val systemUiController = rememberSystemUiController()
 
     val options = listOf("Cash", "Card", "UPI")
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(options[0]) }
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-    // Date Picker Dialog
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            selectedDate = "$dayOfMonth/${month + 1}/$year"
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
-    // Set the status bar color to red
-    LaunchedEffect(Unit) {
-        systemUiController.setStatusBarColor(color = redBackGround)
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                selectedDate = "$dayOfMonth/${month + 1}/$year"
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
     }
+    // Set the status bar color to red
     Column ( Modifier
         .fillMaxSize()
         .background(background)
@@ -150,7 +148,7 @@ fun AmoutEntry(){
                         decorationBox = {
                             Box {
                                 if (textTitleState.isEmpty())
-                                    Text("0.00", fontSize = 24.sp, color = Color.Red)
+                                    Text("", fontSize = 24.sp, color = Color.Red)
                                 it()
                             }
                         })
@@ -176,8 +174,7 @@ fun AmoutEntry(){
                 onValueChange = { noteText = it },
                 Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 textStyle = TextStyle(
-                    Color.DarkGray, 24.sp,
-                    FontWeight.Bold
+                    fontSize = 18.sp, color = Color.DarkGray
                 ),
                 decorationBox = {
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -202,14 +199,24 @@ fun AmoutEntry(){
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
-                    .clickable { datePickerDialog.show() } // Open Date Picker on click
             ) {
                 BasicTextField(
                     value = selectedDate,
                     onValueChange = {}, // No need to allow user typing
                     textStyle = TextStyle(fontSize = 18.sp),
                     readOnly = true, // Make it read-only
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()  .clickable {
+                        DatePickerDialog(
+                            context,
+                            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                                selectedDate = "$dayOfMonth/${month + 1}/$year"
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    }
+
                 )
             }
         }

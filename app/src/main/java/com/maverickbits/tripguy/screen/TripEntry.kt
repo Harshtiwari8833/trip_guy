@@ -3,6 +3,7 @@
 package com.maverickbits.tripguy.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toolbar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -76,18 +77,20 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.maverickbits.tripguy.routes.Routes
 import kotlinx.coroutines.delay
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TripEntry(viewModel: TripViewModel) {
+fun TripEntry(viewModel: TripViewModel,navController: NavController) {
     val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
 
@@ -111,7 +114,7 @@ fun TripEntry(viewModel: TripViewModel) {
             if (trips == null) {
                 LottiLoadingScreen()
             } else if (trips!!.isNotEmpty()) {
-                TripListScreen(trips!!, viewModel = viewModel)
+                TripListScreen(trips!!, viewModel = viewModel, navController = navController)
             } else {
                 BackgroundImage()
                 body()
@@ -327,7 +330,7 @@ fun BottomSheetLayout(onSave: (String, String, String) -> Unit) {
 }
 
 @Composable
-fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewModel: TripViewModel) {
+fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewModel: TripViewModel,navController: NavController) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -342,18 +345,22 @@ fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewMo
                 }
             )
             { trip: TripEntity ->
-                ListItems(trip)
+                ListItems(trip, onClick = {
+                    Log.d("TripListScreen", "Navigating to EntryScreen")
+                    navController.navigate(Routes.EntryScreen)
+                })
             }
         }
     }
 }
 
 @Composable
-fun ListItems(trips: TripEntity) {
+fun ListItems(trips: TripEntity, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .clickable{onClick()}
             .padding(horizontal = 20.dp, vertical = 4.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .padding(vertical = 13.dp, horizontal = 10.dp),
