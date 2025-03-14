@@ -32,10 +32,9 @@ import java.lang.reflect.Modifier
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EntryScreen(navController: NavController) {
+fun EntryScreen(tripId: String, navController: NavController) {
     Scaffold(topBar = { Toolbar() }, floatingActionButton = {
-        FloatingActionButton(onClick = { navController.navigate(Routes
-            .AmountEntryScreen) }) {
+        FloatingActionButton(onClick = { navController.navigate("${Routes.AmountEntryScreen}/$tripId") }) {
             Icon(Icons.Default.Add, contentDescription = Routes.AmountEntryScreen)
         }
     })

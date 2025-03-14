@@ -53,14 +53,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import com.maverickbits.tripguy.veiwModel.TripViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-@Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
 @Composable
-fun AmoutEntry(){
+fun AmoutEntry(tripId: String, viewModel: TripViewModel){
     var textTitleState by remember {
         mutableStateOf("0.00")
     }

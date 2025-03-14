@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -77,11 +79,15 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.TripEntryScreen) {
                         TripEntry(viewModel, navController)
                     }
-                    composable(Routes.AmountEntryScreen) {
-                        AmoutEntry()
+                    composable("${Routes.AmountEntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
+                        backStackEntry ->
+                        val tripId = backStackEntry.arguments?.getString("tripId")?: ""
+                        AmoutEntry(tripId)
                     }
-                    composable(Routes.EntryScreen) {
-                        EntryScreen(navController = navController)
+                    composable("${Routes.EntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
+                        backStackEntry ->
+                        val tripId = backStackEntry.arguments?.getString("tripId")?: ""
+                        EntryScreen(tripId, navController)
                     }
 
                 }

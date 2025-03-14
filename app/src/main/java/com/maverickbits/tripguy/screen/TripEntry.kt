@@ -124,7 +124,8 @@ fun TripEntry(viewModel: TripViewModel,navController: NavController) {
                 BottomSheetContent(sheetState = sheetState,
                     onDismiss = { showSheet = false },
                     onSave = { tripName, tripMembers, currentTime ->
-                        viewModel.addTrip(tripName, tripMembers, currentTime)
+                       val trip_id = generateRandomString(10)
+                        viewModel.addTrip(tripName, tripMembers, currentTime, trip_id)
                         showSheet = false
                     })
             }
@@ -132,7 +133,12 @@ fun TripEntry(viewModel: TripViewModel,navController: NavController) {
     }
 }
 
-
+fun generateRandomString(length: Int): String {
+    val chars = ('a'..'z').toList()
+    return (1..length)
+        .map { chars.random() }
+        .joinToString("")
+}
 @Preview(showBackground = true, showSystemUi = true, device = "spec:width=411dp,height=891dp")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -347,7 +353,7 @@ fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewMo
             { trip: TripEntity ->
                 ListItems(trip, onClick = {
                     Log.d("TripListScreen", "Navigating to EntryScreen")
-                    navController.navigate(Routes.EntryScreen)
+                    navController.navigate("${Routes.EntryScreen}/${trip.tripId}")
                 })
             }
         }

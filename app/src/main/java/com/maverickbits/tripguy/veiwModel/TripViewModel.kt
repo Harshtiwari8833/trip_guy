@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.maverickbits.tripguy.room.dao.TripDao
+import com.maverickbits.tripguy.room.entity.AmountEntry
 import com.maverickbits.tripguy.room.entity.TripEntity
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +14,47 @@ import kotlinx.coroutines.launch
 class TripViewModel(private val tripDao: TripDao) : ViewModel() {
 
 
-
-    fun addTrip(tripName: String, tripMembers: String, currentTime: String) {
+    fun addTrip(tripName: String, tripMembers: String, currentTime: String, tripId: String) {
         if (tripName.isNotBlank() && tripMembers.isNotBlank() && currentTime.isNotBlank()) {
             viewModelScope.launch {
-                tripDao.insertTrip(TripEntity(tripName = tripName, tripMembers = tripMembers, currentTime = currentTime))
+                tripDao.insertTrip(
+                    TripEntity(
+                        tripName = tripName,
+                        tripMembers = tripMembers,
+                        currentTime = currentTime,
+                        tripId = tripId
+                    )
+                )
+            }
+        }
+    }
+
+    fun addAmountDetails(
+        userID: String,
+        userName: String,
+        category: String,
+        paymentMode: String,
+        location: String,
+        amount: String,
+        date: String,
+        note: String,
+        tripId: String
+    ) {
+        if (userID.isNotBlank() && userName.isNotBlank() && category.isNotBlank() && paymentMode.isNotBlank() && location.isNotBlank() && amount.isNotBlank() && date.isNotBlank() && note.isNotBlank() && tripId.isNotBlank()) {
+            viewModelScope.launch {
+                tripDao.insertAmountDetails(
+                    AmountEntry(
+                        userId = userID,
+                        userName = userName,
+                        category = category,
+                        paymentMode = paymentMode,
+                        location = location,
+                        amount = amount,
+                        date = date,
+                        note = note,
+                        tripId = tripId
+                    )
+                )
             }
         }
     }

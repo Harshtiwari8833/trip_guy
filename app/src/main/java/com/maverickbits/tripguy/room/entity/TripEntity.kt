@@ -8,5 +8,6 @@ data class TripEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val tripName: String,
     val tripMembers: String,
-    val currentTime :String
+    val currentTime :String,
+    val tripId: String
 )

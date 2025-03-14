@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.maverickbits.tripguy.room.entity.AmountEntry
 import com.maverickbits.tripguy.room.entity.TripEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,5 +18,8 @@ interface TripDao {
 
     @Query("DELETE FROM trips WHERE id = :tripId")
     suspend fun deleteTripById(tripId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAmountDetails(trip: AmountEntry)
 
 }

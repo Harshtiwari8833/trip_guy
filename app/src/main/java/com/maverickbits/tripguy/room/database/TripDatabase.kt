@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.maverickbits.tripguy.room.dao.TripDao
+import com.maverickbits.tripguy.room.entity.AmountEntry
 import com.maverickbits.tripguy.room.entity.TripEntity
 
-@Database(entities = [TripEntity::class], version = 1, exportSchema = false)
+@Database(entities = [TripEntity::class, AmountEntry::class], version = 1, exportSchema = false)
 abstract class TripDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
 
