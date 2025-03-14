@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     composable("${Routes.AmountEntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
                         backStackEntry ->
                         val tripId = backStackEntry.arguments?.getString("tripId")?: ""
-                        AmoutEntry(tripId)
+                        AmoutEntry(tripId,viewModel, navController =navController)
                     }
                     composable("${Routes.EntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
                         backStackEntry ->

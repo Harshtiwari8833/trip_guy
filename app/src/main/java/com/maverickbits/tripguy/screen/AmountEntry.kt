@@ -1,5 +1,6 @@
 package com.maverickbits.tripguy.screen
 
+import android.annotation.SuppressLint
 import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,20 +40,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.maverickbits.tripguy.R
 import com.maverickbits.tripguy.ui.theme.background
 import com.maverickbits.tripguy.ui.theme.redBackGround
 import com.maverickbits.tripguy.ui.theme.redText
 import android.app.DatePickerDialog
+import android.content.Context
 import android.widget.DatePicker
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.navigation.NavController
 import com.maverickbits.tripguy.veiwModel.TripViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -60,7 +60,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun AmoutEntry(tripId: String, viewModel: TripViewModel){
+fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavController) {
     var textTitleState by remember {
         mutableStateOf("0.00")
     }
@@ -70,8 +70,6 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     var selectedDate by remember { mutableStateOf(dateFormat.format(Date())) } // Default: Today
-
-
     val options = listOf("Cash", "Card", "UPI")
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(options[0]) }
@@ -88,13 +86,16 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
             calendar.get(Calendar.DAY_OF_MONTH)
         )
     }
-    // Set the status bar color to red
-    Column ( Modifier
-        .fillMaxSize()
-        .background(background)
-        .statusBarsPadding()){
 
-        Column (Modifier.background(redBackGround)){
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(background)
+            .statusBarsPadding()
+    ) {
+
+        Column(Modifier.background(redBackGround)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,7 +123,40 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                     text = "Save",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Red
+                    color = Color.Red,
+                    modifier = Modifier.clickable {
+
+                        val location = ""
+                        val userName =
+                            navController.context.getSharedPreferences(
+                                "userData",
+                                Context.MODE_PRIVATE
+                            )
+                                .getString("userImg", "")
+
+                        val userEmail =
+                            navController.context.getSharedPreferences(
+                                "userData",
+                                Context.MODE_PRIVATE
+                            )
+                                .getString("userEmail", "")
+
+                        if (userName.isNullOrEmpty() && userName.isNullOrEmpty() && textTitleState.isNullOrEmpty() && selectedOption.isNullOrEmpty() && selectedDate.isNullOrEmpty() && location.isNullOrEmpty() && selectedDate.isNullOrEmpty() && noteText.isNullOrEmpty() && userEmail.isNullOrEmpty() && userEmail.isNullOrEmpty()) {
+
+                            viewModel.addAmountDetails(
+                                tripId = tripId,
+                                userID = userEmail!!,
+                                userName = userName!!,
+                                category = "Hotel",
+                                paymentMode = selectedOption,
+                                location = "Gurgaon",
+                                amount = textTitleState,
+                                date = selectedDate,
+                                note = noteText
+                            )
+
+                        }
+                    }
                 )
             }
 
@@ -133,9 +167,15 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                     .padding(15.dp), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(painter = painterResource(R.drawable.sleeping), contentDescription = "category", Modifier.size(40.dp),)
-                Row (horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically){
+                Image(
+                    painter = painterResource(R.drawable.sleeping),
+                    contentDescription = "category",
+                    Modifier.size(40.dp),
+                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     BasicTextField(value = textTitleState,
                         onValueChange = { textTitleState = it },
                         Modifier.wrapContentSize(),
@@ -152,19 +192,26 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                                 it()
                             }
                         })
-                    Image(painter = painterResource(R.drawable.rupees), contentDescription = "category",
-                        Modifier.size(55.dp))
+                    Image(
+                        painter = painterResource(R.drawable.rupees),
+                        contentDescription = "category",
+                        Modifier.size(55.dp)
+                    )
                 }
             }
         }
 
 
         Spacer(Modifier.height(40.dp))
-        Row(modifier = Modifier.fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.pen), contentDescription = "pen",
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.pen), contentDescription = "pen",
                 tint = redText,
                 modifier = Modifier
                     .padding(5.dp)
@@ -172,24 +219,36 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
             )
             BasicTextField(value = noteText,
                 onValueChange = { noteText = it },
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 textStyle = TextStyle(
                     fontSize = 18.sp, color = Color.DarkGray
                 ),
                 decorationBox = {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         if (noteText.isEmpty())
-                            Text("Notes", fontSize = 18.sp, color = Color.DarkGray, modifier = Modifier.fillMaxWidth())
+                            Text(
+                                "Notes",
+                                fontSize = 18.sp,
+                                color = Color.DarkGray,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         it()
                     }
-                })
+                }
+            )
         }
         Spacer(Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.calendar), contentDescription = "pen",
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.calendar), contentDescription = "pen",
                 tint = redText,
                 modifier = Modifier
                     .padding(5.dp)
@@ -205,27 +264,34 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                     onValueChange = {}, // No need to allow user typing
                     textStyle = TextStyle(fontSize = 18.sp),
                     readOnly = true, // Make it read-only
-                    modifier = Modifier.fillMaxWidth()  .clickable {
-                        DatePickerDialog(
-                            context,
-                            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                                selectedDate = "$dayOfMonth/${month + 1}/$year"
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            DatePickerDialog(
+                                context,
+                                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                                    selectedDate = "$dayOfMonth/${month + 1}/$year"
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        }
 
                 )
             }
         }
+
         Spacer(Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.wallet), contentDescription = "pen",
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.wallet), contentDescription = "pen",
                 tint = redText,
                 modifier = Modifier
                     .padding(5.dp)
@@ -246,11 +312,11 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                 )
             }
 
-            // Dropdown Menu
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
-            ) {
+            )
+            {
                 options.forEach { option ->
                     DropdownMenuItem(
                         text = { Text(option) },
@@ -261,23 +327,28 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel){
                     )
                 }
             }
-
         }
         Spacer(Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.location), contentDescription = "pen",
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.location), contentDescription = "pen",
                 tint = redText,
                 modifier = Modifier
                     .padding(5.dp)
                     .size(25.dp)
             )
-          Text("Mumbai" , fontSize = 18.sp, color = Color.DarkGray, modifier =  Modifier.padding(horizontal = 8.dp))
+            Text(
+                "Mumbai",
+                fontSize = 18.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         }
     }
-
-
-
 }
