@@ -66,10 +66,13 @@ dependencies {
     implementation ("com.airbnb.android:lottie-compose:6.0.0")
     implementation ("com.google.android.gms:play-services-auth:20.6.0")
     val nav_version = "2.8.8"
-
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.0-alpha")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
+
+
 
 
 }

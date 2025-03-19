@@ -48,11 +48,16 @@ import com.maverickbits.tripguy.ui.theme.redBackGround
 import com.maverickbits.tripguy.ui.theme.redText
 import android.app.DatePickerDialog
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.widget.DatePicker
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.maverickbits.tripguy.veiwModel.TripViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -86,7 +91,15 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
             calendar.get(Calendar.DAY_OF_MONTH)
         )
     }
+    var selectedLocation by remember { mutableStateOf("Fetching...") }
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
+// Fetch the user's location
+    LaunchedEffect(Unit) {
+        getUserLocation(context, fusedLocationClient) { locationName ->
+            selectedLocation = locationName // Update state
+        }
+    }
 
     Column(
         Modifier
@@ -126,7 +139,6 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
                     color = Color.Red,
                     modifier = Modifier.clickable {
 
-                        val location = ""
                         val userName =
                             navController.context.getSharedPreferences(
                                 "userData",
@@ -141,21 +153,17 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
                             )
                                 .getString("userEmail", "")
 
-                        if (userName.isNullOrEmpty() && userName.isNullOrEmpty() && textTitleState.isNullOrEmpty() && selectedOption.isNullOrEmpty() && selectedDate.isNullOrEmpty() && location.isNullOrEmpty() && selectedDate.isNullOrEmpty() && noteText.isNullOrEmpty() && userEmail.isNullOrEmpty() && userEmail.isNullOrEmpty()) {
-
-                            viewModel.addAmountDetails(
-                                tripId = tripId,
-                                userID = userEmail!!,
-                                userName = userName!!,
-                                category = "Hotel",
-                                paymentMode = selectedOption,
-                                location = "Gurgaon",
-                                amount = textTitleState,
-                                date = selectedDate,
-                                note = noteText
-                            )
-
-                        }
+                        viewModel.addAmountDetails(
+                            tripId = tripId,
+                            userID = userEmail!!,
+                            userName = userName!!,
+                            category = "Hotel",
+                            paymentMode = selectedOption,
+                            location = selectedLocation,
+                            amount = textTitleState,
+                            date = selectedDate,
+                            note = noteText
+                        )
                     }
                 )
             }
@@ -344,11 +352,34 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
                     .size(25.dp)
             )
             Text(
-                "Mumbai",
+                selectedLocation,
                 fontSize = 18.sp,
                 color = Color.DarkGray,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
+        }
+    }
+}
+
+@SuppressLint("MissingPermission") // Make sure to handle permissions in UI
+fun getUserLocation(
+    context: Context,
+    fusedLocationClient: FusedLocationProviderClient,
+    onLocationFetched: (String) -> Unit
+) {
+    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        if (location != null) {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses: List<Address>? = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+            if (!addresses.isNullOrEmpty()) {
+                val cityName = addresses[0].locality ?: "Unknown Location"
+                onLocationFetched(cityName) // Update location in UI
+            } else {
+                onLocationFetched("Location Not Found")
+            }
+        } else {
+            onLocationFetched("Unable to get location")
         }
     }
 }

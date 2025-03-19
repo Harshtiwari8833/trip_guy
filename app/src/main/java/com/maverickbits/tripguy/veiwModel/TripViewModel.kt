@@ -1,8 +1,13 @@
 package com.maverickbits.tripguy.veiwModel
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.health.connect.datatypes.ExerciseRoute
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.maverickbits.tripguy.room.dao.TripDao
 import com.maverickbits.tripguy.room.entity.AmountEntry
 import com.maverickbits.tripguy.room.entity.TripEntity
@@ -68,7 +73,12 @@ class TripViewModel(private val tripDao: TripDao) : ViewModel() {
             tripDao.deleteTripById(tripId)
         }
     }
+
+    val allAmountEntry: StateFlow<List<AmountEntry>?> = tripDao.fetchAllAmountDetails()
+        .stateIn(viewModelScope, SharingStarted.Lazily, null)
 }
+
+
 
 class TripViewModelFactory(private val tripDao: TripDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

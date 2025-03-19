@@ -77,7 +77,6 @@ fun FillDetails(navController: NavController, loginName: String?) {
     }
 }
 
-
 @Composable
 fun Toolbar(modifier: Modifier = Modifier, text: String) {
     Row(
@@ -175,8 +174,6 @@ fun MainContent(loginName: String, navController: NavController) {
         val imageUrl_Gmail =
             navController.context.getSharedPreferences("userData", Context.MODE_PRIVATE)
                 .getString("userImg", "")
-
-
         // Load Image using Coil
         AsyncImage(
             model = imageUrl_Gmail ?: R.drawable.profile, // Use default if URL is empty
@@ -188,18 +185,6 @@ fun MainContent(loginName: String, navController: NavController) {
                 .clip(CircleShape)
 
         )
-
-//        Image(
-//            painter = painterResource(id = R.drawable.profile),
-//            contentDescription = "menu",
-//            contentScale = ContentScale.Crop,
-//            modifier = Modifier
-//                .width(50.dp)
-//                .height(50.dp)
-//                .aspectRatio(1f, matchHeightConstraintsFirst = true)
-//                .padding(3.dp)
-//                .clip(CircleShape)
-//        )
 
         Text(
             text = "Add a Photo (optional)",
@@ -230,6 +215,3 @@ fun Button(text: String, onClick: () -> Unit) {
         )
     }
 }
-
-//@Serializable
-//object Home

@@ -22,4 +22,6 @@ interface TripDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAmountDetails(trip: AmountEntry)
 
+    @Query("SELECT * FROM amount_details")
+   fun fetchAllAmountDetails(): Flow<List<AmountEntry>>
 }
