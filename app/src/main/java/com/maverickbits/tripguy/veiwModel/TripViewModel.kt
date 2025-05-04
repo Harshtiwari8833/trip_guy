@@ -76,6 +76,13 @@ class TripViewModel(private val tripDao: TripDao) : ViewModel() {
 
     val allAmountEntry: StateFlow<List<AmountEntry>?> = tripDao.fetchAllAmountDetails()
         .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    fun fetchAmountDetailsByTripId(tripId: String): StateFlow<List<AmountEntry>?> {
+        return tripDao.fetchAmountDetailsByTripId(tripId)
+            .stateIn(viewModelScope, SharingStarted.Lazily, null)
+    }
+
+
 }
 
 

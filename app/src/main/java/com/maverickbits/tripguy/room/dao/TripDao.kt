@@ -23,5 +23,9 @@ interface TripDao {
     suspend fun insertAmountDetails(trip: AmountEntry)
 
     @Query("SELECT * FROM amount_details")
-   fun fetchAllAmountDetails(): Flow<List<AmountEntry>>
+    fun fetchAllAmountDetails(): Flow<List<AmountEntry>>
+
+    @Query("SELECT * FROM amount_details WHERE tripId = :tripId")
+    fun fetchAmountDetailsByTripId(tripId: String): Flow<List<AmountEntry>>
+
 }
