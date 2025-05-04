@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.maverickbits.tripguy.R
 import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.routes.Screens
 import com.maverickbits.tripguy.ui.theme.background
 
 
@@ -64,7 +65,7 @@ fun FillDetails(navController: NavController, loginName: String?) {
         MainContent(loginName = loginName.toString(), navController)
         Spacer(modifier = Modifier.weight(1f, true))
         Button("Continue", {
-            navController.navigate(Routes.TripEntryScreen){
+            navController.navigate(Screens.TripEntryScreen){
                 popUpTo(Routes.FillDetailsScreen) { inclusive = true } //remove screen from back stack
             }
             val sharedPreferences =

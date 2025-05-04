@@ -52,6 +52,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -121,7 +122,10 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
                         contentDescription = null,
                         modifier = Modifier
                             .scale(1f)
-                            .size(20.dp),
+                            .size(20.dp)
+                            .clickable {
+                                navController.popBackStack()
+                            },
                         tint = redText
                     )
                     Text(
@@ -164,6 +168,18 @@ fun AmoutEntry(tripId: String, viewModel: TripViewModel, navController: NavContr
                             date = selectedDate,
                             note = noteText
                         )
+
+                        if (noteText.isNotBlank() && textTitleState.isNotBlank() && !textTitleState.equals("0.00")) {
+                            navController.popBackStack()
+                        }else{
+                            Toast.makeText(
+                                navController.context,
+                                "Please enter all the fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        }
+
                     }
                 )
             }

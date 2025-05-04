@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -28,10 +29,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.maverickbits.tripguy.room.database.TripDatabase
 import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.routes.Screens
 import com.maverickbits.tripguy.screen.AmoutEntry
 import com.maverickbits.tripguy.screen.EntryScreen
 import com.maverickbits.tripguy.screen.FillDetails
-
 import com.maverickbits.tripguy.screen.LoginScreen
 import com.maverickbits.tripguy.screen.TripEntry
 import com.maverickbits.tripguy.screen.TripListScreen
@@ -68,26 +69,24 @@ class MainActivity : ComponentActivity() {
                 var navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = if (isLoggedIn && !isFillDetail) Routes.FillDetailsScreen else if (isFillDetail && isLoggedIn) Routes.TripEntryScreen else Routes.LoginScreen
+                    startDestination = if (isLoggedIn && !isFillDetail) Screens.FillDetailsScreen else if (isFillDetail && isLoggedIn) Screens.TripEntryScreen else Screens.LoginScreen
                 ) {
-                    composable(Routes.LoginScreen) {
+                    composable<Screens.LoginScreen> {
                         LoginScreen { signIn() }
                     }
-                    composable(Routes.FillDetailsScreen) {
+                    composable<Screens.FillDetailsScreen> {
                         FillDetails(navController, loginName )
                     }
-                    composable(Routes.TripEntryScreen) {
+                    composable<Screens.TripEntryScreen> {
                         TripEntry(viewModel, navController)
                     }
-                    composable("${Routes.AmountEntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
-                        backStackEntry ->
-                        val tripId = backStackEntry.arguments?.getString("tripId")?: ""
-                        AmoutEntry(tripId,viewModel, navController =navController)
+                    composable<Screens.AmountEntryScreen> {
+                        val args = it.toRoute<Screens.AmountEntryScreen>()
+                        AmoutEntry(args.tripId,viewModel, navController =navController)
                     }
-                    composable("${Routes.EntryScreen}/{tripId}", arguments = listOf(navArgument("tripId"){type = NavType.StringType})) {
-                        backStackEntry ->
-                        val tripId = backStackEntry.arguments?.getString("tripId")?: ""
-                        EntryScreen(tripId, navController)
+                    composable<Screens.EntryScreen> {
+                        val args = it.toRoute<Screens.EntryScreen>()
+                        EntryScreen(args.tripId, navController ,viewModel)
                     }
 
                 }

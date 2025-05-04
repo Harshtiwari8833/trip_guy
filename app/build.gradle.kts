@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+    alias(libs.plugins.kotlin.serialization)
 
 }
 
@@ -71,6 +72,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.0-alpha")
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
+    implementation(libs.kotlinx.serialization.json)
 
 
 

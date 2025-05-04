@@ -84,6 +84,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.routes.Screens
 import kotlinx.coroutines.delay
 
 
@@ -353,7 +354,7 @@ fun TripListScreen(trips: List<TripEntity>, modifier: Modifier = Modifier,viewMo
             { trip: TripEntity ->
                 ListItems(trip, onClick = {
                     Log.d("TripListScreen", "Navigating to EntryScreen")
-                    navController.navigate("${Routes.EntryScreen}/${trip.tripId}")
+                    navController.navigate(Screens.EntryScreen(trip.tripId))
                 })
             }
         }

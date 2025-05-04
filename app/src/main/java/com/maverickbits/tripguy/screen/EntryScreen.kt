@@ -23,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,16 +35,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.maverickbits.tripguy.R
+import com.maverickbits.tripguy.room.entity.AmountEntry
 import com.maverickbits.tripguy.routes.Routes
+import com.maverickbits.tripguy.routes.Screens
 import com.maverickbits.tripguy.ui.theme.background
+import com.maverickbits.tripguy.veiwModel.TripViewModel
 import java.lang.reflect.Modifier
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EntryScreen(tripId: String, navController: NavController) {
+fun EntryScreen(tripId: String, navController: NavController ,viewModel: TripViewModel) {
     Scaffold(topBar = { Toolbar() }, floatingActionButton = {
-        FloatingActionButton(onClick = { navController.navigate("${Routes.AmountEntryScreen}/$tripId") }) {
+        FloatingActionButton(onClick = { navController.navigate(Screens.AmountEntryScreen(tripId)) }) {
             Icon(Icons.Default.Add, contentDescription = Routes.AmountEntryScreen)
         }
     }) { paddingValues ->
@@ -130,19 +135,23 @@ fun EntryScreen(tripId: String, navController: NavController) {
             }
 
             Text("Entries")
-            LazyColumn {
-                items() {
-                    ListItem()
+            val amountEntries by viewModel.allAmountEntry.collectAsState()
+            amountEntries?.let { list ->
+                LazyColumn {
+                    items(list){ entry->
+                        ListItem(entry)
+                    }
                 }
             }
+
         }
     }
 }
 
 
-@Preview(showBackground = true)
+
 @Composable
-fun ListItem() {
+fun ListItem(entry: AmountEntry) {
     Row(modifier = androidx.compose.ui.Modifier
         .fillMaxWidth()
         .wrapContentHeight(),
@@ -160,21 +169,21 @@ fun ListItem() {
                     .size(40.dp),
             )
             Column{
-                Text(text = "Room", textAlign = TextAlign.Center, fontSize = 16.sp, fontWeight = FontWeight.W900)
-                Text(text = "Accommodation")
+                Text(text = entry.category, textAlign = TextAlign.Center, fontSize = 16.sp, fontWeight = FontWeight.W900)
+                Text(text = entry.note)
             }
         }
-        Text(text = "30000/-" ,  androidx.compose.ui.Modifier.padding(20.dp))
+        Text(text = "${entry.amount}/-" ,  androidx.compose.ui.Modifier.padding(20.dp))
 
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewEntryScreen() {
-    // Create a dummy NavController
-    val navController = rememberNavController()
-
-    EntryScreen(tripId = "123", navController = navController)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewEntryScreen() {
+//    // Create a dummy NavController
+//    val navController = rememberNavController()
+//
+//    EntryScreen(tripId = "123", navController = navController)
+//}
 
