@@ -32,21 +32,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.maverickbits.tripguy.R
+import com.maverickbits.tripguy.routes.Screens
 import com.maverickbits.tripguy.ui.theme.background
 import com.maverickbits.tripguy.ui.theme.redBackGround
 import com.maverickbits.tripguy.ui.theme.redText
 import com.maverickbits.tripguy.veiwModel.TripViewModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+
 
 
 
 
     @Composable
-    fun AmoutEntry(viewModel: TripViewModel ) {
+    fun AmoutEntry(viewModel: TripViewModel, navController: NavController ) {
         var textTitleState by remember {
             mutableStateOf("0.00")
         }
@@ -56,11 +55,9 @@ import java.util.Locale
 
         val amountEntriesState by viewModel.fetchAmountDetailsByTripId("").collectAsState()
 
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        var selectedDate by remember { mutableStateOf(dateFormat.format(Date())) } // Default: Today
         var expanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
-        val calendar = Calendar.getInstance()
+
 
         Column(
             Modifier
@@ -83,7 +80,7 @@ import java.util.Locale
                                 .scale(1f)
                                 .size(20.dp)
                                 .clickable {
-
+                                      navController.popBackStack()
                                 },
                             tint = redText
                         )
@@ -101,11 +98,8 @@ import java.util.Locale
                         fontWeight = FontWeight.Medium,
                         color = Color.Red,
                         modifier = Modifier.clickable {
-
-                            if (noteText.isNotBlank() && textTitleState.isNotBlank() && !textTitleState.equals("0.00")) {
-
-                            }
-
+                            navController.navigate(Screens.AmountEntryScreen(""))
+                            //open the edit screen on click
                         }
                     )
                 }
